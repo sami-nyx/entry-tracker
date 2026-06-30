@@ -76,11 +76,21 @@ jobs:
     - name: Test e2e
       run: |
         sleep 30
-        docker ps -a
-        docker logs mysql-db
-        curl -f http://localhost:5000/
-        echo "===================test 2====================="
-        curl -f http://localhost:5000/
-        echo "===================test 3====================="
-        curl -f http://localhost:5000/
+        echo "=== Run 1: Checking for Success Message ==="
+        # Run curl and save response to a variable
+        RESPONSE_1=$(curl -s -f http://localhost:5000/)
+        echo "$RESPONSE_1"
+        
+        # Verify the success message exists in the output
+        if echo "$RESPONSE_1" | grep -q "Data fetched successfully from the database."; then
+          echo "✓ Success message found!"
+        else
+          echo "✗ Expected success message not found!"
+          exit 1
+        fi
+        curl -fs http://localhost:5000/ > /dev/null
+        
+        curl -fs http://localhost:5000/ > /dev/null
+        
+        curl -fs http://localhost:5000/ | jq '.previous_entries | length'
       
