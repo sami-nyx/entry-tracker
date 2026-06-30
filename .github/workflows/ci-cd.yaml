@@ -126,13 +126,22 @@ jobs:
         echo "Sending deployment script to tagged EC2 instances"
         
         COMMAND_ID=$(aws ssm send-command \
-          --targets "Key=tag:Environment,Values=staging" "Key=tag:Project,Values=entry-tracker" \
           --document-name "AWS-RunShellScript" \
           --comment "Deploying entry-tracker:${{ github.sha }}" \
+          --targets '[
+            {"Key": "tag:Environment", "Values": ["staging"]},
+            {"Key": "tag:Project", "Values": ["entry-tracker"]}
+          ]' \
           --parameters 'commands=[
-            "touch /home/ec2-user/hi-hi"
+            "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\""
           ]' \
           --query "Command.CommandId" \
           --output text)
           
         echo "Command sent successfully. Command ID: $COMMAND_ID"
+        
+        echo "Waiting for execution..."
+        sleep 5
+        
+        # Now check the invocations using the safe JSON structure
+        aws ssm list-command-invocations --command-id "$COMMAND_ID" --details
