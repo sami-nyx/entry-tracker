@@ -1,0 +1,19 @@
+services:
+  web:
+    image: 889867978066.dkr.ecr.ap-south-1.amazonaws.com/entry-tracker-rds:latest
+    container_name: flask-app
+    environment:
+      - DB_HOST=${DB_HOST}    # change this when replacing MySQL contianer with another database
+      - DB_USER=${DB_USER}    # change this when replacing MySQL contianer with another database
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    ports:
+      - "5000:5000"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+
+volumes:
+  db-data:
