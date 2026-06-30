@@ -70,7 +70,7 @@ jobs:
         DB_USER: ${{ vars.DB_USER }}
         DB_NAME: ${{ vars.DB_NAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      
+        DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
    
     # 4. Wait for the Flask app to be ready, then curl
     - name: Test e2e
