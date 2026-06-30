@@ -130,7 +130,7 @@ jobs:
           --document-name "AWS-RunShellScript" \
           --comment "Deploying entry-tracker:${{ github.sha }}" \
           --parameters 'commands=[
-            "touch /home/ec2-user/hi-hi
+            "touch /home/ec2-user/hi-hi"
           ]' \
           --query "Command.CommandId" \
           --output text)
