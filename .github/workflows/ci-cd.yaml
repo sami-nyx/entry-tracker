@@ -42,6 +42,11 @@ jobs:
     # 1. Check out the repository code
     - name: Checkout code
       uses: actions/checkout@v6
+    - name: Package
+      working-directory: ./entryTracker
+      run: docker build -t entryTracker:latest
+    - name: list images
+      run: docker images  
     - name: check-env
       env:
         DB_HOST: ${{ vars.DB_HOST }} 

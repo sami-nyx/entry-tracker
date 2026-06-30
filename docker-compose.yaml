@@ -1,8 +1,8 @@
 services:
   
   web:
-    image: 889867978066.dkr.ecr.ap-south-1.amazonaws.com/entry-tracker-rds:latest
-    container_name: flask-app
+    build: ./entryTracker
+    container_name: entry-tracker-app
     environment:
       - DB_HOST=db  # Pointing directly to the MySQL service name
       - DB_USER=${DB_USER}    
@@ -20,7 +20,7 @@ services:
     container_name: mysql-db
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}  # Sets the root password
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD} 
       - MYSQL_DATABASE=${DB_NAME}           # Automatically creates this database on startup
       - MYSQL_USER=${DB_USER}               # Automatically creates this user
       - MYSQL_PASSWORD=${DB_PASSWORD}       # Sets the password for the created user
