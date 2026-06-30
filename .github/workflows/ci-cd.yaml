@@ -39,7 +39,6 @@ jobs:
     # needs: ["build-and-test"]
     runs-on: ubuntu-latest
     steps:
-    
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -61,13 +60,18 @@ jobs:
     - name: List images
       run: docker images  
 
-    - name: Check env (Optional debug step)
-      run: printenv | grep "DB"
-        
     # 3. Spin up the containers (They will now successfully read the job-level Env vars)
     - name: Prepare for e2e test
-      run: docker compose up -d
-
+      run: |
+        printenv | grep "DB"
+        docker compose up -d
+      env:
+        DB_HOST: ${{ vars.DB_HOST }} 
+        DB_USER: ${{ vars.DB_USER }}
+        DB_NAME: ${{ vars.DB_NAME }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      
+   
     # 4. Wait for the Flask app to be ready, then curl
     - name: Test e2e
       run: |
