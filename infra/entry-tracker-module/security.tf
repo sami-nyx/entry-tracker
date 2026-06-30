@@ -49,25 +49,17 @@ resource "aws_iam_policy" "ecr_pull_policy" {
     ]
   })
 }
-#====================================================IAM-s3-read-policy===========================================
-resource "aws_iam_policy" "s3_read_policy" {
-  name = "s3-read-policy"
+#====================================================IAM-ssm-core-policy===========================================
+# resource "aws_iam_policy" "ssm_core_policy" {
+#   name = "ssm-core-policy"
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:ListBucket"
-        ]
-        Resource = ["arn:aws:s3:::entry-tracker-companion-files",
-                    "arn:aws:s3:::entry-tracker-companion-files/*" ]
-      }
-    ]
-  })
-}
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [ 
+#       #fill this
+#     ]
+#   })
+# }
 # =====================================================IAM-role===========================================
 resource "aws_iam_role" "ec2_role" {
   name = "ec2-role"
@@ -92,9 +84,10 @@ resource "aws_iam_role_policy_attachment" "attach_ecr_pull_policy" {
   role       = aws_iam_role.ec2_role.name
   policy_arn = aws_iam_policy.ecr_pull_policy.arn
 }
-resource "aws_iam_role_policy_attachment" "attach_s3_read_policy" {
+resource "aws_iam_role_policy_attachment" "ssm_core_policy" {
   role       = aws_iam_role.ec2_role.name
-  policy_arn = aws_iam_policy.s3_read_policy.arn
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+
 }
 #=====================================================IAM-instance-profile===========================================
 
