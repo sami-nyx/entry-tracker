@@ -39,24 +39,38 @@ jobs:
     # needs: ["build-and-test"]
     runs-on: ubuntu-latest
     steps:
-    # 1. Check out the repository code
+    
     - name: Checkout code
-      uses: actions/checkout@v6
-    - name: Package
-      working-directory: ./entryTracker
-      run: docker build -t entry-tracker:latest .
-    - name: list images
+      uses: actions/checkout@v4
+
+    # 1. Set up Docker Buildx (Required for advanced caching features)
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    # 2. Build the Docker image utilizing GitHub Actions Cache
+    - name: Build and Package with Cache
+      uses: docker/build-push-action@v6
+      with:
+        context: ./entryTracker
+        file: ./entryTracker/Dockerfile
+        tags: entry-tracker:latest
+        load: true # This loads the image into the local Docker daemon so compose can use it
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: List images
       run: docker images  
-    - name: check-env
-      env:
-        DB_HOST: ${{ vars.DB_HOST }} 
-        DB_USER: ${{ vars.DB_USER }}
-        DB_NAME: ${{ vars.DB_NAME }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+    - name: Check env (Optional debug step)
       run: printenv | grep "DB"
         
+    # 3. Spin up the containers (They will now successfully read the job-level Env vars)
     - name: Prepare for e2e test
       run: docker compose up -d
+
+    # 4. Wait for the Flask app to be ready, then curl
     - name: Test e2e
-      run: curl -f http://localhost:5000/
+      run: |
+        sleep 5
+        curl -f http://localhost:5000/
       
