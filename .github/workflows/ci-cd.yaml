@@ -92,5 +92,11 @@ jobs:
         
         curl -fs http://localhost:5000/ > /dev/null
         
-        curl -fs http://localhost:5000/ | jq '.previous_entries | length'
-      
+        ENTRY_COUNT=$(curl -fs http://localhost:5000/ | jq '.previous_entries | length')
+        if [ "$ENTRY_COUNT" -eq 4 ]; then
+          echo "✓ Success! The database accurately tracked 4 entries."
+        else
+          echo "✗ Error! Expected 4 entries, but found $ENTRY_COUNT."
+          exit 1
+        fi 
+    
