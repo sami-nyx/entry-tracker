@@ -42,26 +42,26 @@ jobs:
       id-token: write 
       contents: write 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    # - name: Checkout code
+    #   uses: actions/checkout@v4
 
-    # 1. Set up Docker Buildx (Required for advanced caching features)
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+    # # 1. Set up Docker Buildx (Required for advanced caching features)
+    # - name: Set up Docker Buildx
+    #   uses: docker/setup-buildx-action@v3
 
-    # 2. Build the Docker image utilizing GitHub Actions Cache
-    - name: Build and Package with Cache
-      uses: docker/build-push-action@v6
-      with:
-        context: ./entryTracker
-        file: ./entryTracker/Dockerfile
-        tags: entry-tracker:latest
-        load: true # This loads the image into the local Docker daemon so compose can use it
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+    # # 2. Build the Docker image utilizing GitHub Actions Cache
+    # - name: Build and Package with Cache
+    #   uses: docker/build-push-action@v6
+    #   with:
+    #     context: ./entryTracker
+    #     file: ./entryTracker/Dockerfile
+    #     tags: entry-tracker:latest
+    #     load: true # This loads the image into the local Docker daemon so compose can use it
+    #     cache-from: type=gha
+    #     cache-to: type=gha,mode=max
 
-    - name: List images
-      run: docker images  
+    # - name: List images
+    #   run: docker images  
 
     # 3. Spin up the containers (They will now successfully read the job-level Env vars)
     # - name: Prepare for e2e test
@@ -109,15 +109,30 @@ jobs:
         aws-region: ap-south-1 
         disable-retry: true 
     
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+    # - name: Login to Amazon ECR
+    #   id: login-ecr
+    #   uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build, tag, and push image to Amazon ECR
-      working-directory: ./entryTracker
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: entry-tracker
+    # - name: Build, tag, and push image to Amazon ECR
+    #   working-directory: ./entryTracker
+    #   env:
+    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #     ECR_REPOSITORY: entry-tracker
+    #   run: |
+    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+    - name: Run script on instance
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        echo "Sending deployment script to tagged EC2 instances"
+        
+        COMMAND_ID=$(aws ssm send-command \
+          --targets "Key=tag:Environment,Values=production" "Key=tag:Project,Values=entry-tracker" \
+          --document-name "AWS-RunShellScript" \
+          --comment "Deploying entry-tracker:${{ github.sha }}" \
+          --parameters 'commands=[
+            "touch /home/ec2-user/hi-hi
+          ]' \
+          --query "Command.CommandId" \
+          --output text)
+          
+        echo "Command sent successfully. Command ID: $COMMAND_ID"
