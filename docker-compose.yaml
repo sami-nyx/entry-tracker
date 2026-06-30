@@ -1,14 +1,33 @@
 services:
+  
   web:
     image: 889867978066.dkr.ecr.ap-south-1.amazonaws.com/entry-tracker-rds:latest
     container_name: flask-app
     environment:
-      - DB_HOST=${DB_HOST}    # change this when replacing MySQL contianer with another database
-      - DB_USER=${DB_USER}    # change this when replacing MySQL contianer with another database
+      - DB_HOST=db  # Pointing directly to the MySQL service name
+      - DB_USER=${DB_USER}    
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
     ports:
       - "5000:5000"
+    networks:
+      - app_network
+    depends_on:
+      - db  # Ensures the database starts before the web app
+
+  db:
+    image: mysql:5.7
+    container_name: mysql-db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}  # Sets the root password
+      - MYSQL_DATABASE=${DB_NAME}           # Automatically creates this database on startup
+      - MYSQL_USER=${DB_USER}               # Automatically creates this user
+      - MYSQL_PASSWORD=${DB_PASSWORD}       # Sets the password for the created user
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
     networks:
       - app_network
 
