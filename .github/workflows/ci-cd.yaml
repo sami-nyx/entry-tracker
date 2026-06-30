@@ -58,5 +58,5 @@ jobs:
     - name: Prepare for e2e test
       run: docker compose up -d
     - name: Test e2e
-      run: curl -f http://127.0.0.1:5000/
+      run: curl -f http://localhost:5000/
       
