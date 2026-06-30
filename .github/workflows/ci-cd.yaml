@@ -75,7 +75,7 @@ jobs:
     # 4. Wait for the Flask app to be ready, then curl
     - name: Test e2e
       run: |
-        sleep 5
+        sleep 30
         docker ps -a
         docker logs mysql-db
         curl -f http://localhost:5000/
