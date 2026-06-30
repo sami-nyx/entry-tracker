@@ -36,7 +36,7 @@ jobs:
   #       curl -f http://127.0.0.1:5000/
     
   package-and-e2e:
-    needs: ["build-and-test"]
+    # needs: ["build-and-test"]
     runs-on: ubuntu-latest
     steps:
     # 1. Check out the repository code
