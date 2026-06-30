@@ -45,7 +45,7 @@ jobs:
     - name: check-env
       env:
         DB_HOST: ${{ variables.DB_HOST }} 
-        DB_USER: ${{ vaariable.DB_USER }}
-        DB_NAME: ${{ vaariable.DB_NAME }}
+        DB_USER: ${{ variable.DB_USER }}
+        DB_NAME: ${{ variable.DB_NAME }}
       run: printenv
         
