@@ -1,10 +1,9 @@
 services:
-  
   web:
-    build: ./entryTracker
-    container_name: entry-tracker-app
+    image: 889867978066.dkr.ecr.ap-south-1.amazonaws.com/entry-tracker-rds:latest
+    container_name: flask-app
     environment:
-      - DB_HOST=db  # Pointing directly to the MySQL service name
+      - DB_HOST=db
       - DB_USER=${DB_USER}    
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
@@ -13,23 +12,30 @@ services:
     networks:
       - app_network
     depends_on:
-      - db  # Ensures the database starts before the web app
+      db:
+        condition: service_healthy  # Wait until the healthcheck passes, not just until the container starts
 
   db:
     image: mysql:5.7
     container_name: mysql-db
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD} 
-      - MYSQL_DATABASE=${DB_NAME}           # Automatically creates this database on startup
-      - MYSQL_USER=${DB_USER}               # Automatically creates this user
-      - MYSQL_PASSWORD=${DB_PASSWORD}       # Sets the password for the created user
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
       - db-data:/var/lib/mysql
     networks:
       - app_network
+    # HEALTHCHECK: Ensures MySQL is fully ready to accept connections before web starts
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 networks:
   app_network:
