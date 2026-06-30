@@ -126,7 +126,7 @@ jobs:
         echo "Sending deployment script to tagged EC2 instances"
         
         COMMAND_ID=$(aws ssm send-command \
-          --targets "Key=tag:Environment,Values=production" "Key=tag:Project,Values=entry-tracker" \
+          --targets "Key=tag:Environment,Values=staging" "Key=tag:Project,Values=entry-tracker" \
           --document-name "AWS-RunShellScript" \
           --comment "Deploying entry-tracker:${{ github.sha }}" \
           --parameters 'commands=[
