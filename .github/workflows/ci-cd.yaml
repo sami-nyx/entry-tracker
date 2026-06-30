@@ -79,4 +79,8 @@ jobs:
         docker ps -a
         docker logs mysql-db
         curl -f http://localhost:5000/
+        echo "===================test 2====================="
+        curl -f http://localhost:5000/
+        echo "===================test 3====================="
+        curl -f http://localhost:5000/
       
