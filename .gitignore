@@ -1,2 +1,30 @@
 .env
 *.terraform/*
+# ==============================================================================
+# Terraform (infra directory)
+# ==============================================================================
+# Ignore local state files (they contain plain-text infrastructure secrets)
+**/*.tfstate
+**/*.tfstate.backup
+**/*.tfstate.lock.info
+
+# Ignore the dependency lock file if you don't want to lock provider versions strictly
+# .terraform.lock.hcl
+
+# Ignore the hidden working directory created by 'terraform init'
+**/.terraform/
+
+# Ignore any local variable files that contain real secret values
+**/*.tfvars
+**/*.tfvars.json
+
+# Ignore local override files
+**/*_override.tf
+**/*_override.tf.json
+
+
+# ==============================================================================
+# Local Build Artifacts & System Files
+# ==============================================================================
+# Ignore the zip archive in your root folder
+entryTracker.zip
