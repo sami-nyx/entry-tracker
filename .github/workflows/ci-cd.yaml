@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -34,3 +34,18 @@ jobs:
         sleep 3
         
         curl -f http://127.0.0.1:5000/
+    
+  package-and-e2e:
+    needs: ["build-and-test"]
+    runs-on: ubuntu-latest
+    steps:
+    # 1. Check out the repository code
+    - name: Checkout code
+      uses: actions/checkout@v6
+    - name: check-env
+      env:
+        DB_HOST: ${{ variables.DB_HOST }} 
+        DB_USER: ${{ vaariable.DB_USER }}
+        DB_NAME: ${{ vaariable.DB_NAME }}
+      run: printenv
+        
