@@ -166,7 +166,7 @@ jobs:
             {"Key": "tag:Project", "Values": ["entry-tracker"]}
           ]' \
           --parameters "{\"commands\": [
-            \"echo $BASE64_PAYLOAD | base64 --decode > /home/ec2-user/compose_config.yaml\",
+            \"echo $BASE64_PAYLOAD | base64 --decode > /home/ec2-user/compose_config.yaml\"
           ]}" \
           --query "Command.CommandId" \
           --output text)
