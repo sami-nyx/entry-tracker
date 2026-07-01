@@ -2,12 +2,12 @@ name: deliver-and-deploy
 on:
   workflow_call:
 jobs:
-  package-e2e:
+  deliver:
     runs-on: ubuntu-latest
     permissions:
       id-token: write 
       contents: read
-      
+
     steps:
 
     - name: Configure AWS Credentials via OIDC
