@@ -42,8 +42,8 @@ jobs:
       id-token: write 
       contents: write 
     steps:
-    # - name: Checkout code
-    #   uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     # # 1. Set up Docker Buildx (Required for advanced caching features)
     # - name: Set up Docker Buildx
@@ -150,28 +150,28 @@ jobs:
       run: |
         # 1. Encode your local docker-compose.yml file into a clean, single-line string
         ls
-        # COMPOSE_BASE64=$(base64 -w 0 docker-compose.yaml)
+        COMPOSE_BASE64=$(base64 -w 0 docker-compose.yaml)
         
-        # echo "Shipping encoded compose layout to tagged EC2 instances..."
+        echo "Shipping encoded compose layout to tagged EC2 instances..."
         
-        # # 2. Dispatched via SSM agent
-        # COMMAND_ID=$(aws ssm send-command \
-        #   --document-name "AWS-RunShellScript" \
-        #   --comment "Deploying via Base64 sync:${{ github.sha }}" \
-        #   --targets '[
-        #     {"Key": "tag:Environment", "Values": ["staging"]},
-        #     {"Key": "tag:Project", "Values": ["entry-tracker"]}
-        #   ]' \
-        #   --parameters "commands=[
-        #     'mkdir -p /home/ec2-user/app',
+        # 2. Dispatched via SSM agent
+        COMMAND_ID=$(aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --comment "Deploying via Base64 sync:${{ github.sha }}" \
+          --targets '[
+            {"Key": "tag:Environment", "Values": ["staging"]},
+            {"Key": "tag:Project", "Values": ["entry-tracker"]}
+          ]' \
+          --parameters "commands=[
+            'mkdir -p /home/ec2-user/app',
             
-        #     # Write the base64 string straight to a temp file and decode it safely
-        #     'echo \"$COMPOSE_BASE64\" > /home/ec2-user/app/docker-compose.yaml.b64',
-        #     'base64 -d /home/ec2-user/app/docker-compose.yaml.b64 > /home/ec2-user/app/docker-compose.yaml',
-        #     'rm -f /home/ec2-user/app/docker-compose.yaml.b64',
+            # Write the base64 string straight to a temp file and decode it safely
+            'echo \"$COMPOSE_BASE64\" > /home/ec2-user/app/docker-compose.yaml.b64',
+            'base64 -d /home/ec2-user/app/docker-compose.yaml.b64 > /home/ec2-user/app/docker-compose.yaml',
+            'rm -f /home/ec2-user/app/docker-compose.yaml.b64',
             
-        #   ]" \
-        #   --query "Command.CommandId" \
-        #   --output text)
+          ]" \
+          --query "Command.CommandId" \
+          --output text)
           
-        # echo "Sync complete. Tracking Command ID: $COMMAND_ID"
+        echo "Sync complete. Tracking Command ID: $COMMAND_ID"
