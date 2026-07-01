@@ -152,7 +152,7 @@ jobs:
         AWS_ACCOUNT_ID: "889867978066"
         AWS_REGION: "ap-south-1"
       run: |
-       BASE64_PAYLOAD=$(base64 -w 0 path/to/your/local-file.txt)
+       BASE64_PAYLOAD=$(base64 -w 0 ./docker-compose.yaml)
           
 
         echo "Shipping compose layout to tagged EC2 instances..."
