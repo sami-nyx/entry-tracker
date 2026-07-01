@@ -12,67 +12,95 @@ jobs:
         role-to-assume: arn:aws:iam::889867978066:role/github-actions-ecr-push-role
         aws-region: ap-south-1 
         disable-retry: true 
-    
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build, tag, and push image to Amazon ECR
-      working-directory: ./entryTracker
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: entry-tracker
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-    - name: Run script on instance
-      run: |
-        echo "Sending deployment script to tagged EC2 instances"
+
+
+    # - name: Login to Amazon ECR
+    #   id: login-ecr
+    #   uses: aws-actions/amazon-ecr-login@v2
+
+    # - name: Checkout code
+    #   uses: actions/checkout@v6
+
+    # - name: Build, tag, and push image to Amazon ECR
+    #   working-directory: ./entryTracker
+    #   env:
+    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #     ECR_REPOSITORY: entry-tracker
+    #   run: |
+    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+    # - name: Run script on instance
+    #   run: |
+    #     echo "Sending deployment script to tagged EC2 instances"
         
-        COMMAND_ID=$(aws ssm send-command \
-          --document-name "AWS-RunShellScript" \
-          --comment "Deploying entry-tracker:${{ github.sha }}" \
-          --targets '[
-            {"Key": "tag:Environment", "Values": ["staging"]},
-            {"Key": "tag:Project", "Values": ["entry-tracker"]}
-          ]' \
-          --parameters 'commands=[
-            "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\""
-            "printenv | grep 'DB_' > /home/ec2-user/env_vars.txt"
-          ]' \
-          --query "Command.CommandId" \
-          --output text)
+    #     COMMAND_ID=$(aws ssm send-command \
+    #       --document-name "AWS-RunShellScript" \
+    #       --comment "Deploying entry-tracker:${{ github.sha }}" \
+    #       --targets '[
+    #         {"Key": "tag:Environment", "Values": ["staging"]},
+    #         {"Key": "tag:Project", "Values": ["entry-tracker"]}
+    #       ]' \
+    #       --parameters 'commands=[
+    #         "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\""
+    #         "printenv | grep 'DB_' > /home/ec2-user/env_vars.txt"
+    #       ]' \
+    #       --query "Command.CommandId" \
+    #       --output text)
           
-        echo "Command sent successfully. Command ID: $COMMAND_ID"
-        
-        echo "Waiting for execution..."
-        # sleep 5
-        
-        # # Now check the invocations using the safe JSON structure
-        # aws ssm list-command-invocations --command-id "$COMMAND_ID" --details
-    - name: Deploy and Sync Compose Configuration via Clean Variable
-      env:
-        # Load the target AWS Account ID or use static values
-        AWS_ACCOUNT_ID: "889867978066"
-        AWS_REGION: "ap-south-1"
-      run: |
-       BASE64_PAYLOAD=$(base64 -w 0 ./docker-compose.yaml)
+    #     echo "Command sent successfully. Command ID: $COMMAND_ID"
+
+
+
+
+
+    - name: Ship Docker Compose Manifest
+      uses: ./.github/actions/ssm-ship-file
+      with:
+          source-file: './docker-compose.yaml'
+          target-path: '/home/ec2-user/docker-compose.yaml'
+          environment-tag: 'staging'
+          project-tag: 'entry-tracker'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # - name: Ship docker compose file via ssm to ec2 instance by tags
+    #   env:
+    #     # Load the target AWS Account ID or use static values
+    #     AWS_ACCOUNT_ID: "889867978066"
+    #     AWS_REGION: "ap-south-1"
+    #   run: |
+    #    BASE64_PAYLOAD=$(base64 -w 0 ./docker-compose.yaml)
           
 
-        echo "Shipping compose layout to tagged EC2 instances..."
+    #     echo "Shipping compose layout to tagged EC2 instances..."
 
-        # 2. Trigger SSM command using the clean variable
-        COMMAND_ID=$(aws ssm send-command \
-          --document-name "AWS-RunShellScript" \
-          --comment "Deploying via Environment Variable Sync:${{ github.sha }}" \
-          --targets '[
-            {"Key": "tag:Environment", "Values": ["staging"]},
-            {"Key": "tag:Project", "Values": ["entry-tracker"]}
-          ]' \
-          --parameters "{\"commands\": [
-            \"echo $BASE64_PAYLOAD | base64 --decode > /home/ec2-user/compose_config.yaml\"
-          ]}" \
-          --query "Command.CommandId" \
-          --output text)
+    #     # 2. Trigger SSM command using the clean variable
+    #     COMMAND_ID=$(aws ssm send-command \
+    #       --document-name "AWS-RunShellScript" \
+    #       --comment "Deploying via Environment Variable Sync:${{ github.sha }}" \
+    #       --targets '[
+    #         {"Key": "tag:Environment", "Values": ["staging"]},
+    #         {"Key": "tag:Project", "Values": ["entry-tracker"]}
+    #       ]' \
+    #       --parameters "{\"commands\": [
+    #         \"echo $BASE64_PAYLOAD | base64 --decode > /home/ec2-user/docker-compose.yaml\"
+    #       ]}" \
+    #       --query "Command.CommandId" \
+    #       --output text)
           
-        echo "Sync complete. Tracking Command ID: $COMMAND_ID"
+    #     echo "Sync complete. Tracking Command ID: $COMMAND_ID"

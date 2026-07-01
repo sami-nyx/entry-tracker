@@ -1,0 +1,51 @@
+name: 'SSM Ship File via Base64'
+description: 'Encodes a local file to Base64 and ships it to tagged EC2 instances via AWS SSM'
+
+inputs:
+  source-file:
+    description: 'Path to the local file to ship (e.g., ./docker-compose.yaml)'
+    required: true
+  target-path:
+    description: 'Absolute path on the EC2 instance where the file should be saved'
+    required: true
+  environment-tag:
+    description: 'Value of the Environment tag to target'
+    required: false
+    default: 'staging'
+  project-tag:
+    description: 'Value of the Project tag to target'
+    required: false
+    default: 'entry-tracker'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Encode and Send File via SSM
+      shell: bash
+      run: |
+        if [ ! -f "${{ inputs.source-file }}" ]; then
+          echo "✗ Error: Source file ${{ inputs.source-file }} not found!"
+          exit 1
+        fi
+
+        # 1. Base64 encode the file into a variable
+        BASE64_PAYLOAD=$(base64 -w 0 "${{ inputs.source-file }}")
+        
+        echo "Shipping ${{ inputs.source-file }} to target location: ${{ inputs.target-path }}..."
+
+        # 2. Escape paths inside the JSON parameters safely
+        # 3. Trigger SSM command using JSON parameters syntax
+        COMMAND_ID=$(aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --comment "Shipping file via composite action: ${{ github.sha }}" \
+          --targets '[
+            {"Key": "tag:Environment", "Values": ["${{ inputs.environment-tag }}"]},
+            {"Key": "tag:Project", "Values": ["${{ inputs.project-tag }}"]}
+          ]' \
+          --parameters "{\"commands\": [
+            \"echo $BASE64_PAYLOAD | base64 --decode > ${{ inputs.target-path }}\"
+          ]}" \
+          --query "Command.CommandId" \
+          --output text)
+          
+        echo "✓ Sync complete. Tracking Command ID: $COMMAND_ID"
