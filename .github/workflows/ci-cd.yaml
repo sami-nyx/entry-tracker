@@ -141,7 +141,7 @@ jobs:
         echo "Command sent successfully. Command ID: $COMMAND_ID"
         
         echo "Waiting for execution..."
-        sleep 5
+        # sleep 5
         
-        # Now check the invocations using the safe JSON structure
-        aws ssm list-command-invocations --command-id "$COMMAND_ID" --details
+        # # Now check the invocations using the safe JSON structure
+        # aws ssm list-command-invocations --command-id "$COMMAND_ID" --details
