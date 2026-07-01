@@ -121,27 +121,61 @@ jobs:
     #   run: |
     #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
     #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-    - name: Run script on instance
-      run: |
-        echo "Sending deployment script to tagged EC2 instances"
+    # - name: Run script on instance
+    #   run: |
+    #     echo "Sending deployment script to tagged EC2 instances"
         
+    #     COMMAND_ID=$(aws ssm send-command \
+    #       --document-name "AWS-RunShellScript" \
+    #       --comment "Deploying entry-tracker:${{ github.sha }}" \
+    #       --targets '[
+    #         {"Key": "tag:Environment", "Values": ["staging"]},
+    #         {"Key": "tag:Project", "Values": ["entry-tracker"]}
+    #       ]' \
+    #       --parameters 'commands=[
+    #         "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\""
+    #         "printenv | grep 'DB_' > /home/ec2-user/env_vars.txt"
+    #       ]' \
+    #       --query "Command.CommandId" \
+    #       --output text)
+          
+    #     echo "Command sent successfully. Command ID: $COMMAND_ID"
+        
+    #     echo "Waiting for execution..."
+    #     # sleep 5
+        
+    #     # # Now check the invocations using the safe JSON structure
+    #     # aws ssm list-command-invocations --command-id "$COMMAND_ID" --details
+    - name: Deploy and Sync Compose Configuration via Base64
+      run: |
+        # 1. Encode your local docker-compose.yml file into a clean, single-line string
+        COMPOSE_BASE64=$(base64 -w 0 docker-compose.yaml)
+        
+        echo "Shipping encoded compose layout to tagged EC2 instances..."
+        
+        # 2. Dispatched via SSM agent
         COMMAND_ID=$(aws ssm send-command \
           --document-name "AWS-RunShellScript" \
-          --comment "Deploying entry-tracker:${{ github.sha }}" \
+          --comment "Deploying via Base64 sync:${{ github.sha }}" \
           --targets '[
             {"Key": "tag:Environment", "Values": ["staging"]},
             {"Key": "tag:Project", "Values": ["entry-tracker"]}
           ]' \
-          --parameters 'commands=[
-            "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\""
-          ]' \
+          --parameters "commands=[
+            'mkdir -p /home/ec2-user/app',
+            
+            # Write the base64 string straight to a temp file and decode it safely
+            'echo \"$COMPOSE_BASE64\" > /home/ec2-user/app/docker-compose.yaml.b64',
+            'base64 -d /home/ec2-user/app/docker-compose.yaml.b64 > /home/ec2-user/app/docker-compose.yaml',
+            'rm -f /home/ec2-user/app/docker-compose.yaml.b64',
+            
+            # Ensure correct file permissions
+            'chown -R ec2-user:ec2-user /home/ec2-user/app',
+            
+            # Pull down the latest image and bounce the stack using our global environment profiles
+            'sudo -u ec2-user -i bash -c \"cd /home/ec2-user/app && aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 889867978066.dkr.ecr.ap-south-1.amazonaws.com && docker compose pull && docker compose down && docker compose up -d\"'
+          ]" \
           --query "Command.CommandId" \
           --output text)
           
-        echo "Command sent successfully. Command ID: $COMMAND_ID"
-        
-        echo "Waiting for execution..."
-        # sleep 5
-        
-        # # Now check the invocations using the safe JSON structure
-        # aws ssm list-command-invocations --command-id "$COMMAND_ID" --details
+        echo "Sync complete. Tracking Command ID: $COMMAND_ID"
