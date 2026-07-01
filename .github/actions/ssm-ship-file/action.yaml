@@ -43,6 +43,8 @@ runs:
             {"Key": "tag:Project", "Values": ["${{ inputs.project-tag }}"]}
           ]' \
           --parameters "{\"commands\": [
+            \"TARGET_DIR=\$(dirname '${{ inputs.target-path }}')\",
+            \"mkdir -p \$TARGET_DIR\",
             \"echo $BASE64_PAYLOAD | base64 --decode > ${{ inputs.target-path }}\"
           ]}" \
           --query "Command.CommandId" \
