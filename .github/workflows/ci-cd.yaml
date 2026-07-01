@@ -149,6 +149,7 @@ jobs:
     - name: Deploy and Sync Compose Configuration via Base64
       run: |
         # 1. Encode your local docker-compose.yml file into a clean, single-line string
+        ls
         COMPOSE_BASE64=$(base64 -w 0 docker-compose.yaml)
         
         echo "Shipping encoded compose layout to tagged EC2 instances..."
