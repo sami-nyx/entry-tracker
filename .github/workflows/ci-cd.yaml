@@ -169,11 +169,6 @@ jobs:
             'base64 -d /home/ec2-user/app/docker-compose.yaml.b64 > /home/ec2-user/app/docker-compose.yaml',
             'rm -f /home/ec2-user/app/docker-compose.yaml.b64',
             
-            # Ensure correct file permissions
-            'chown -R ec2-user:ec2-user /home/ec2-user/app',
-            
-            # Pull down the latest image and bounce the stack using our global environment profiles
-            'sudo -u ec2-user -i bash -c \"cd /home/ec2-user/app && aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 889867978066.dkr.ecr.ap-south-1.amazonaws.com && docker compose pull && docker compose down && docker compose up -d\"'
           ]" \
           --query "Command.CommandId" \
           --output text)
