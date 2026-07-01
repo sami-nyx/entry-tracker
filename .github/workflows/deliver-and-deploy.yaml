@@ -62,7 +62,7 @@ jobs:
       uses: ./.github/actions/ssm-ship-file
       with:
           source-file: './docker-compose.yaml'
-          target-path: '/home/ec2-user/docker-compose.yaml'
+          target-path: '/home/ec2-user/entry-tracker/docker-compose.yaml'
           environment-tag: 'staging'
           project-tag: 'entry-tracker'
 
