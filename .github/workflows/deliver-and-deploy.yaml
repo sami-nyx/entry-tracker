@@ -4,6 +4,10 @@ on:
 jobs:
   package-e2e:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write 
+      contents: read
+      
     steps:
 
     - name: Configure AWS Credentials via OIDC
