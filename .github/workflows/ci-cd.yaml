@@ -152,11 +152,8 @@ jobs:
         AWS_ACCOUNT_ID: "889867978066"
         AWS_REGION: "ap-south-1"
       run: |
-        # 1. Read your file directly into a GitHub Actions step variable
-        # Using EOF ensures that all formatting, newlines, and indentation stay exactly as they are.
-        echo "COMPOSE_FILE_CONTENT<<EOF" >> $GITHUB_ENV
-        cat docker-compose.yaml >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
+       BASE64_PAYLOAD=$(base64 -w 0 path/to/your/local-file.txt)
+          
 
         echo "Shipping compose layout to tagged EC2 instances..."
 
@@ -169,9 +166,7 @@ jobs:
             {"Key": "tag:Project", "Values": ["entry-tracker"]}
           ]' \
           --parameters "{\"commands\": [
-            \"mkdir -p /home/ec2-user/app\",
-            \"cat << 'INNER_EOF' > /home/ec2-user/app/docker-compose.yaml\n${{ env.COMPOSE_FILE_CONTENT }}\nINNER_EOF\",
-            \"chown -R ec2-user:ec2-user /home/ec2-user/app\",
+            \"echo $BASE64_PAYLOAD | base64 --decode > /home/ec2-user/compose_config.yaml\",
           ]}" \
           --query "Command.CommandId" \
           --output text)
