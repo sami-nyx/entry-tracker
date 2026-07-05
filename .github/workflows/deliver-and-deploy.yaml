@@ -35,6 +35,12 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: entry-tracker
         IMAGE_TAG: latest
+    - name: Debug Container Failure Logs
+      if: failure()
+      run: |
+        docker compose ps
+        docker compose logs db
+        docker compose logs web
 
     - name: Execute integration test
       run: |
