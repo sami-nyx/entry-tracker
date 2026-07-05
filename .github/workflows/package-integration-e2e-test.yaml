@@ -75,6 +75,10 @@ jobs:
 #==============================================================================================
 #                                         Tag Image
 #==============================================================================================
+    - name: List images
+      run: docker images
+
+
     - name: Tag the entry tracker image
       run: docker tag entry-tracker:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
       env:
