@@ -74,39 +74,35 @@ jobs:
     
 
 #==============================================================================================
-#                                         Deploy to ec2
+#                                         Ship docker compose file to ec2
 #==============================================================================================
-    - name: Run script on instance
-      run: |
-        echo "Sending deployment script to tagged EC2 instances"
+    # - name: Run script on instance
+    #   run: |
+    #     echo "Sending deployment script to tagged EC2 instances"
         
-        COMMAND_ID=$(aws ssm send-command \
-          --document-name "AWS-RunShellScript" \
-          --comment "Deploying entry-tracker:${{ github.sha }}" \
-          --targets '[
-            {"Key": "tag:Environment", "Values": ["staging"]},
-            {"Key": "tag:Project", "Values": ["entry-tracker"]}
-          ]' \
-          --parameters 'commands=[
-            "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\"",
-            "printenv | grep 'DB_' > /home/ec2-user/env_vars.txt"
-          ]' \
-          --query "Command.CommandId" \
-          --output text)
+    #     COMMAND_ID=$(aws ssm send-command \
+    #       --document-name "AWS-RunShellScript" \
+    #       --comment "Deploying entry-tracker:${{ github.sha }}" \
+    #       --targets '[
+    #         {"Key": "tag:Environment", "Values": ["staging"]},
+    #         {"Key": "tag:Project", "Values": ["entry-tracker"]}
+    #       ]' \
+    #       --parameters 'commands=[
+    #         "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\"",
+    #         "printenv | grep 'DB_' > /home/ec2-user/env_vars.txt"
+    #       ]' \
+    #       --query "Command.CommandId" \
+    #       --output text)
           
-        echo "Command sent successfully. Command ID: $COMMAND_ID"
+    #     echo "Command sent successfully. Command ID: $COMMAND_ID"
 
-
-
-
-
-    # - name: Ship Docker Compose Manifest
-    #   uses: ./.github/actions/ssm-ship-file
-    #   with:
-    #       source-file: './docker-compose.yaml'
-    #       target-path: '/home/ec2-user/entry-tracker/docker-compose.yaml'
-    #       environment-tag: 'staging'
-    #       project-tag: 'entry-tracker'
+    - name: Ship Docker Compose Manifest
+      uses: ./.github/actions/ssm-ship-file
+      with:
+          source-file: './docker-compose.yaml'
+          target-path: '/home/ec2-user/entry-tracker/docker-compose.yaml'
+          environment-tag: 'staging'
+          project-tag: 'entry-tracker'
 
 
 
