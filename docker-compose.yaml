@@ -52,7 +52,17 @@ services:
 
 networks:
   front_net:
+    ipam:
+      driver: default
+      config:
+        # Forces Docker to use a small, isolated 10.x block that won't conflict with host 172.x routes
+        - subnet: 10.10.1.0/24
   back_net:
+    ipam:
+      driver: default
+      config:
+        # Forces Docker to use a small, isolated 10.x block that won't conflict with host 172.x routes
+        - subnet: 10.10.2.0/24
 
 volumes:
   db-data:
