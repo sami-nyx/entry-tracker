@@ -22,6 +22,7 @@ runs:
   steps:
     - name: Encode and Send File via SSM
       shell: bash
+      #TODO: compare transfer limit and file size
       run: |
         if [ ! -f "${{ inputs.source-file }}" ]; then
           echo "✗ Error: Source file ${{ inputs.source-file }} not found!"

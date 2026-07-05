@@ -17,15 +17,16 @@ jobs:
         aws-region: ap-south-1 
         disable-retry: true 
 
-
-
-    # - name: Login to Amazon ECR
-    #   id: login-ecr
-    #   uses: aws-actions/amazon-ecr-login@v2
-
     - name: Checkout code
       uses: actions/checkout@v6
 
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Resolve patch next tag
+      uses: ./.github/actions/resove-next-tag
+      
     # - name: Build, tag, and push image to Amazon ECR
     #   working-directory: ./entryTracker
     #   env:
@@ -58,13 +59,13 @@ jobs:
 
 
 
-    - name: Ship Docker Compose Manifest
-      uses: ./.github/actions/ssm-ship-file
-      with:
-          source-file: './docker-compose.yaml'
-          target-path: '/home/ec2-user/entry-tracker/docker-compose.yaml'
-          environment-tag: 'staging'
-          project-tag: 'entry-tracker'
+    # - name: Ship Docker Compose Manifest
+    #   uses: ./.github/actions/ssm-ship-file
+    #   with:
+    #       source-file: './docker-compose.yaml'
+    #       target-path: '/home/ec2-user/entry-tracker/docker-compose.yaml'
+    #       environment-tag: 'staging'
+    #       project-tag: 'entry-tracker'
 
 
 
