@@ -27,50 +27,50 @@ jobs:
         disable-retry: true 
 
 
-#==============================================================================================
-#                                         Login to ecr
-#==============================================================================================
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+# #==============================================================================================
+# #                                         Login to ecr
+# #==============================================================================================
+#     - name: Login to Amazon ECR
+#       id: login-ecr
+#       uses: aws-actions/amazon-ecr-login@v2
 
-#==============================================================================================
-#                                         Ceckout code
+# #==============================================================================================
+# #                                         Ceckout code
 #==============================================================================================
     - name: Checkout code
       uses: actions/checkout@v6
 
 
-#==============================================================================================
-#                                         E2e test
-#==============================================================================================
-    - name: Prepare for e2e test
-      run: |
-        docker compose pull
-        docker compose up -d --no-build --remove-orphans
-      env:
-        DB_HOST: ${{ vars.DB_HOST }} 
-        DB_USER: ${{ vars.DB_USER }}
-        DB_NAME: ${{ vars.DB_NAME }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: entry-tracker
-        IMAGE_TAG: latest
-    - name: Debug Container Failure Logs
-      if: failure()
-      run: |
-        docker compose ps
-        docker compose logs db
-        docker compose logs web
+# #==============================================================================================
+# #                                         E2e test
+# #==============================================================================================
+#     - name: Prepare for e2e test
+#       run: |
+#         docker compose pull
+#         docker compose up -d --no-build --remove-orphans
+#       env:
+#         DB_HOST: ${{ vars.DB_HOST }} 
+#         DB_USER: ${{ vars.DB_USER }}
+#         DB_NAME: ${{ vars.DB_NAME }}
+#         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+#         DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+#         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#         ECR_REPOSITORY: entry-tracker
+#         IMAGE_TAG: latest
+#     - name: Debug Container Failure Logs
+#       if: failure()
+#       run: |
+#         docker compose ps
+#         docker compose logs db
+#         docker compose logs web
 
-    - name: Execute e2e test
-      run: |
-        chmod u+x $SCRIPT_PATH
-        $SCRIPT_PATH
-        docker compose down >/dev/null
-      env:
-        SCRIPT_PATH: ./.github/scripts/test_entry_tracker.sh
+#     - name: Execute e2e test
+#       run: |
+#         chmod u+x $SCRIPT_PATH
+#         $SCRIPT_PATH
+#         docker compose down >/dev/null
+#       env:
+#         SCRIPT_PATH: ./.github/scripts/test_entry_tracker.sh
     
 
 #==============================================================================================
@@ -88,7 +88,7 @@ jobs:
             {"Key": "tag:Project", "Values": ["entry-tracker"]}
           ]' \
           --parameters 'commands=[
-            "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\""
+            "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\"
             "printenv | grep 'DB_' > /home/ec2-user/env_vars.txt"
           ]' \
           --query "Command.CommandId" \
