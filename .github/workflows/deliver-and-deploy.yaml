@@ -88,7 +88,7 @@ jobs:
             {"Key": "tag:Project", "Values": ["entry-tracker"]}
           ]' \
           --parameters 'commands=[
-            "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\"
+            "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\"",
             "printenv | grep 'DB_' > /home/ec2-user/env_vars.txt"
           ]' \
           --query "Command.CommandId" \
