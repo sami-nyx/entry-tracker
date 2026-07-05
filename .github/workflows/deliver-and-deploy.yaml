@@ -103,6 +103,27 @@ jobs:
           target-path: '/home/ec2-user/entry-tracker/docker-compose.yaml'
           environment-tag: 'staging'
           project-tag: 'entry-tracker'
+    
+    - name: Redeploy 
+      run: |
+
+        # 3. Trigger SSM command using JSON parameters syntax
+        COMMAND_ID=$(aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --comment "Shipping file via composite action: ${{ github.sha }}" \
+          --targets '[
+            {"Key": "tag:Environment", "Values": ["staging"]},
+            {"Key": "tag:Project", "Values": ["entry-tracker"]}
+          ]' \
+          --parameters "{\"commands\": [
+            \"TARGET_DIR=\$(dirname '${{ inputs.target-path }}')\",
+            \"mkdir -p \$TARGET_DIR\",
+            \"echo $BASE64_PAYLOAD | base64 --decode > ${{ inputs.target-path }}\"
+          ]}" \
+          --query "Command.CommandId" \
+          --output text)
+          
+        echo "✓ Sync complete. Tracking Command ID: $COMMAND_ID"
 
 
 
