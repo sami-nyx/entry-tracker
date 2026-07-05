@@ -47,7 +47,9 @@ jobs:
     # 4. Wait for the Flask app to be ready, then curl
     - name: Execute integration test
       run: |
-        chmod u+x ./.github/scripts/test_entry_tracker.sh
-        ./.github/scripts/test_entry_tracker.sh
+        chmod u+x $SCRIPT_PATH
+        $SCRIPT_PATH
         
+      env:
+        SCRIPT_PATH: ./.github/scripts/test_entry_tracker.sh
         
