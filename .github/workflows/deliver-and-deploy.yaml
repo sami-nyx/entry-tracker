@@ -104,10 +104,12 @@ jobs:
           environment-tag: 'staging'
           project-tag: 'entry-tracker'
     
-    - name: Redeploy 
+    - name: Run Remote Deployment Script via SSM
       run: |
+        # 1. Read the external file, escape quotes/backslashes for JSON compatibility
+        SCRIPT_CONTENT=$(cat ./.github/scripts/deploy.sh | jq -R -s '.')
 
-        # 3. Trigger SSM command using JSON parameters syntax
+        # 2. Fire the SSM command cleanly
         COMMAND_ID=$(aws ssm send-command \
           --document-name "AWS-RunShellScript" \
           --comment "Shipping file via composite action: ${{ github.sha }}" \
@@ -115,13 +117,11 @@ jobs:
             {"Key": "tag:Environment", "Values": ["staging"]},
             {"Key": "tag:Project", "Values": ["entry-tracker"]}
           ]' \
-          --parameters "{\"commands\": [
-            \"TARGET_DIR=\$(dirname '${{ inputs.target-path }}')\",
-            \"mkdir -p \$TARGET_DIR\",
-            \"echo $BASE64_PAYLOAD | base64 --decode > ${{ inputs.target-path }}\"
-          ]}" \
+          --parameters "{\"commands\": [$SCRIPT_CONTENT]}" \
           --query "Command.CommandId" \
           --output text)
+
+        echo "SSM Command triggered successfully! Command ID: $COMMAND_ID"
           
         echo "✓ Sync complete. Tracking Command ID: $COMMAND_ID"
 
