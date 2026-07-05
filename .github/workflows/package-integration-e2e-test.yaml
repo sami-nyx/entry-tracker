@@ -13,6 +13,7 @@ jobs:
     permissions:
       id-token: write 
       contents: write 
+   
     steps:
     # 1. Check out the repository code
     - name: Checkout code
