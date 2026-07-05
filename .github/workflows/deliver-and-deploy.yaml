@@ -104,6 +104,16 @@ jobs:
           target-path: '/home/ec2-user/entry-tracker/docker-compose.yaml'
           environment-tag: 'staging'
           project-tag: 'entry-tracker'
+
+    - name: Ship nginx config file
+      uses: ./.github/actions/ssm-ship-file
+      with:
+          source-file: './nginx_conf/default.conf'
+          target-path: './nginx_conf/default.conf'
+          environment-tag: 'staging'
+          project-tag: 'entry-tracker'
+
+          
     - name: Run Remote Deployment Script via SSM
       run: |
         # 1. Read the external file script
