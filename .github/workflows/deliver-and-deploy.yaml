@@ -1,6 +1,11 @@
 name: deliver-and-deploy
 on:
   workflow_call:
+    secrets:
+      DB_PASSWORD:
+        required: true
+      DB_ROOT_PASSWORD:
+        required: true
 jobs:
   deliver:
     runs-on: ubuntu-latest
