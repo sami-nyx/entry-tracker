@@ -141,7 +141,6 @@ jobs:
 
     - name: Fetch and Stream Logs for All Target Instances
       run: |
-        echo 'output from hell: "$COMMAND_ID"'
         echo "Waiting for SSM Command $COMMAND_ID to process across targets..."
         
         # 1. Periodically poll until the overall command is no longer "Pending" or "InProgress"
