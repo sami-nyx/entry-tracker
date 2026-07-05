@@ -98,6 +98,7 @@ jobs:
 
     - name: Ship Docker Compose Manifest
       uses: ./.github/actions/ssm-ship-file
+      id: run_ssm
       with:
           source-file: './docker-compose.yaml'
           target-path: '/home/ec2-user/entry-tracker/docker-compose.yaml'
@@ -133,12 +134,26 @@ jobs:
           --output text)
 
         echo "SSM Command triggered successfully! Command ID: $COMMAND_ID"
-        echo "✓ Sync complete. Tracking Command ID: $COMMAND_ID"
+        echo "COMMAND_ID=$COMMAND_ID" >> $GITHUB_ENV
+        
 
 
 
-
-
+    - name: Fetch and Stream Logs for All Target Instances
+      run: |
+        echo 'output from hell: "$COMMAND_ID"'
+        echo "Waiting for SSM Command $COMMAND_ID to process across targets..."
+        
+        # 1. Periodically poll until the overall command is no longer "Pending" or "InProgress"
+        while true; do
+          STATUS=$(aws ssm list-commands --command-id "$COMMAND_ID" --query "Commands[0].Status" --output text)
+          if [[ "$STATUS" != "Pending" && "$STATUS" != "InProgress" ]]; then
+            echo "SSM Execution completed with status: $STATUS"
+            break
+          fi
+          echo "Still executing... checking again in 5 seconds."
+          sleep 5
+        done
 
 
 
