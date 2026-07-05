@@ -25,11 +25,17 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v2
 
     - name: Execute e2e test
-      run: docker compose up
+      run: docker compose up -d
       env:
+        DB_HOST: ${{ vars.DB_HOST }} 
+        DB_USER: ${{ vars.DB_USER }}
+        DB_NAME: ${{ vars.DB_NAME }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: entry-tracker
         IMAGE_TAG: latest
+        
     - name: list images
       run: |
         sleep 10
