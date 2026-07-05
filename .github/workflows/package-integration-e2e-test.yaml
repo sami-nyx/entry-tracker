@@ -56,6 +56,7 @@ jobs:
       with:
         major-minor-patch: 'patch'
 
+
 #==============================================================================================
 #                                         configure AWS 
 #==============================================================================================
@@ -74,19 +75,30 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v2
 
 #==============================================================================================
-#                                         Tag Image
+#                                          Tag current commit
 #==============================================================================================
-    - name: List images
-      run: docker images
+    - name: Tag commit
+      run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
+      env:
+        IMAGE_TAG: ${{ steps.resolve-tag.outputs.NEXT_TAG }}
 
-
+#==============================================================================================
+#                                         Tag and push  to ECR
+#==============================================================================================
     - name: Tag the entry tracker image
-      run: docker tag local/entry-tracker:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      run: |
+        docker tag local/entry-tracker:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: entry-tracker
         IMAGE_TAG: ${{ steps.resolve-tag.outputs.NEXT_TAG }}
-    
+
+
     - name: List images
       run: docker images
 
