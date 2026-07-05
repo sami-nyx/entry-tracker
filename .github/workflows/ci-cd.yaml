@@ -19,5 +19,8 @@ jobs:
     permissions:
       id-token: write 
       contents: read
+    secrets:
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
     # needs: ["package-and-e2e"]
     uses: ./.github/workflows/deliver-and-deploy.yaml
