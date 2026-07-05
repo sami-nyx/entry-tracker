@@ -29,13 +29,3 @@ mkdir -p /usr/libexec/docker/cli-plugins
 # 2. Link your existing compose binary into that directory as 'docker-compose'
 ln -s /usr/local/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose
 
-# Writing to /etc/profile.d/ ensures these load for both SSM sessions and ec2-user
-cat << 'EOF' > /etc/profile.d/app_env.sh
-export DB_HOST="mysql-db"
-export DB_PORT="3306"
-export DB_USER="entry-tracker-app"
-export DB_NAME="app_db"
-EOF
-
-# Set permissions so any shell runner can read the environment variables
-chmod +x /etc/profile.d/app_env.sh

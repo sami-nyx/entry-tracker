@@ -14,6 +14,9 @@ DB_HOST=mysql-db
 DB_PORT=3306
 DB_USER=entry-tracker-app
 DB_NAME=app_db
+ECR_REGISTRY=${ECR_REGISTRY}
+ECR_REPOSITORY=${ECR_REPOSITORY}
+IMAGE_TAG=${IMAGE_TAG}
 EOF
 
 # 3. APPEND (using >>) only the secrets we just fetched
