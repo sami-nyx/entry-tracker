@@ -81,8 +81,8 @@ jobs:
       run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag $NEW_TAG
-          git push origin $NEW_TAG
+          git tag $NEXT_TAG 
+          git push origin $NEXT_TAG 
       env:
         IMAGE_TAG: ${{ steps.resolve-tag.outputs.NEXT_TAG }}
 
