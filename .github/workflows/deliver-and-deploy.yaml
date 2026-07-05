@@ -29,7 +29,7 @@ jobs:
         docker compose pull
         # 3. Re-create and restart containers instantly with zero-build logic
         echo "=========================================================="
-        printenv
+        printenv | grep DB
         echo "=========================================================="
         docker compose up -d --no-build --remove-orphans
       env:
