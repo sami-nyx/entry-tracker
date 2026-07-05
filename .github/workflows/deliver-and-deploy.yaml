@@ -25,7 +25,10 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v2
 
     - name: Prepare for e2e test
-      run: docker compose up 
+      run: |
+        docker compose pull
+        # 3. Re-create and restart containers instantly with zero-build logic
+        docker compose up -d --no-build --remove-orphans
       env:
         DB_HOST: ${{ vars.DB_HOST }} 
         DB_USER: ${{ vars.DB_USER }}
