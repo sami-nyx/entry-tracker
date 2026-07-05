@@ -17,7 +17,9 @@ jobs:
     # 1. Check out the repository code
     - name: Checkout code
       uses: actions/checkout@v6
-
+      with:
+        fetch-depth:
+          0
 
     # - name: List images
     #   run: docker images  
@@ -81,8 +83,8 @@ jobs:
       run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag $NEXT_TAG 
-          git push origin $NEXT_TAG 
+          git tag $IMAGE_TAG 
+          git push origin $IMAGE_TAG 
       env:
         IMAGE_TAG: ${{ steps.resolve-tag.outputs.NEXT_TAG }}
 
