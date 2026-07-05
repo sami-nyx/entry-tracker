@@ -1,6 +1,7 @@
 services:
   web:
     build: ./entryTracker
+    image: ${ECR_REGISTRY:-local}/${ECR_REPOSITORY:-entry-tracker}:${IMAGE_TAG:-latest}
     container_name: entry-tracker-app
     environment:
       - DB_HOST=db

@@ -28,8 +28,9 @@ jobs:
       id: resolve-tag
       uses: ./.github/actions/resolve-next-tag
     
-    - name: Print next tag
-      run: echo "${{ steps.resolve-tag.outputs.NEXT_TAG }}"
+    # - name: Print next tag
+    #   run: echo "${{ steps.resolve-tag.outputs.NEXT_TAG }}"
+
     # - name: Build, tag, and push image to Amazon ECR
     #   working-directory: ./entryTracker
     #   env:
