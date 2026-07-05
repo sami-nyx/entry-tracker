@@ -16,6 +16,7 @@
 
 # Ignore any local variable files that contain real secret values
 **/*.tfvars
+**/*.tfstate**
 **/*.tfvars.json
 
 # Ignore local override files
