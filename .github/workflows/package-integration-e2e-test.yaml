@@ -19,8 +19,10 @@ jobs:
     # - name: List images
     #   run: docker images  
 
-    # 3. Spin up the containers (They will now successfully read the job-level Env vars)
-    - name: Prepare for integration test
+#==============================================================================================
+#                                             Package
+#==============================================================================================
+    - name: Package
       run: |
         docker compose up -d
       env:
@@ -30,13 +32,55 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
    
-    # 4. Wait for the Flask app to be ready, then curl
+
+#==============================================================================================
+#                                          Integration test
+#==============================================================================================
     - name: Execute integration test
       run: |
         chmod u+x $SCRIPT_PATH
         $SCRIPT_PATH
-        docker images
-        
       env:
         SCRIPT_PATH: ./.github/scripts/test_entry_tracker.sh
-        
+
+#==============================================================================================
+#                                          Resolve tag
+#==============================================================================================
+    - name: Resolve next tag
+      id: resolve-tag
+      uses: ./.github/actions/resolve-next-tag
+      with:
+        major-minor-patch: 'patch'
+
+#==============================================================================================
+#                                         configure AWS (assume role)
+#==============================================================================================
+    - name: Configure AWS Credentials via OIDC for ECR image push
+      uses: aws-actions/configure-aws-credentials@v6
+      with:
+        role-to-assume: arn:aws:iam::889867978066:role/github-actions-ecr-push-role
+        aws-region: ap-south-1 
+        disable-retry: true 
+
+#==============================================================================================
+#                                         Login to ECR
+#==============================================================================================
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+#==============================================================================================
+#                                         Tag Image
+#==============================================================================================
+    - name: Tag the entry tracker image
+      run: docker tag entry-tracker:latest $ECR_REGISTRY/$ECR_REPOSITORY :$IMAGE_TAG
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: entry-tracker
+        IMAGE_TAG: ${{ steps.resolve-tag.outputs.NEXT_TAG }}
+    
+    - name: List images
+      run: docker images
+
+
+        # local/entry-tracker  
