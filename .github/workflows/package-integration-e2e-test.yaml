@@ -13,7 +13,6 @@ jobs:
     permissions:
       id-token: write 
       contents: write 
-   
     steps:
     # 1. Check out the repository code
     - name: Checkout code
@@ -57,7 +56,7 @@ jobs:
         major-minor-patch: 'patch'
 
 #==============================================================================================
-#                                         configure AWS (assume role)
+#                                         configure AWS 
 #==============================================================================================
     - name: Configure AWS Credentials via OIDC for ECR image push
       uses: aws-actions/configure-aws-credentials@v6
