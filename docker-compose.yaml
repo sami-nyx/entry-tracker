@@ -1,4 +1,15 @@
 services:
+  nginx:
+    image: nginx:1.27
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx_conf/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - front_net
+    depends_on:
+      - web
+
   web:
     build: ./entryTracker
     image: ${ECR_REGISTRY:-local}/${ECR_REPOSITORY:-entry-tracker}:${IMAGE_TAG:-latest}
@@ -11,7 +22,8 @@ services:
     ports:
       - "5000:5000"
     networks:
-      - app_network
+      - front_net
+      - back_net
     depends_on:
       db:
         condition: service_healthy  # Wait until the healthcheck passes, not just until the container starts
@@ -30,7 +42,7 @@ services:
     volumes:
       - db-data:/var/lib/mysql
     networks:
-      - app_network
+      - back_net
     # HEALTHCHECK: Ensures MySQL is fully ready to accept connections before web starts
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
@@ -39,7 +51,8 @@ services:
       retries: 5
 
 networks:
-  app_network:
+  front_net:
+  back_net:
 
 volumes:
   db-data:
