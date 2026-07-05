@@ -93,8 +93,12 @@ jobs:
 #==============================================================================================
     - name: Tag the entry tracker image
       run: |
+        
+        #tag images
         docker tag local/entry-tracker:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         docker tag local/entry-tracker:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        
+        #push images
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
       env:

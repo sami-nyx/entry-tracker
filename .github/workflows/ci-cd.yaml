@@ -6,18 +6,18 @@ on:
 jobs:
   # build-and-test:
   #   uses: ./.github/workflows/build-and-unit-test.yaml
-  package-and-e2e:
-    # needs: ["build-and-test"]
-    secrets:
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
-    uses: ./.github/workflows/package-integration-e2e-test.yaml
-    permissions:
-      id-token: write   # <-- Grant AWS OIDC write permissions here
-      contents: write
-  # deliver:
+  # package-and-e2e:
+  #   # needs: ["build-and-test"]
+  #   secrets:
+  #       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  #       DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+  #   uses: ./.github/workflows/package-integration-e2e-test.yaml
   #   permissions:
-  #     id-token: write 
-  #     contents: read
-  #   # needs: ["package-and-e2e"]
-  #   uses: ./.github/workflows/deliver-and-deploy.yaml
+  #     id-token: write   # <-- Grant AWS OIDC write permissions here
+  #     contents: write
+  deliver:
+    permissions:
+      id-token: write 
+      contents: read
+    # needs: ["package-and-e2e"]
+    uses: ./.github/workflows/deliver-and-deploy.yaml

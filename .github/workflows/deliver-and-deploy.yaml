@@ -24,10 +24,17 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Resolve patch next tag
-      id: resolve-tag
-      uses: ./.github/actions/resolve-next-tag
-    
+    - name: Execute e2e test
+      run: docker compose up
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: entry-tracker
+        IMAGE_TAG: latest
+    - name: list images
+      run: |
+        sleep 10
+        docker ps
+        docker images
     # - name: Print next tag
     #   run: echo "${{ steps.resolve-tag.outputs.NEXT_TAG }}"
 
