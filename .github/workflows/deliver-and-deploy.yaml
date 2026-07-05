@@ -109,7 +109,7 @@ jobs:
       uses: ./.github/actions/ssm-ship-file
       with:
           source-file: './nginx_conf/default.conf'
-          target-path: './nginx_conf/default.conf'
+          target-path: '/home/ec2-user/entry-tracker/nginx_conf/default.conf'
           environment-tag: 'staging'
           project-tag: 'entry-tracker'
 
