@@ -24,7 +24,7 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Execute e2e test
+    - name: Prepare for e2e test
       run: docker compose up -d
       env:
         DB_HOST: ${{ vars.DB_HOST }} 
@@ -35,7 +35,7 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: entry-tracker
         IMAGE_TAG: latest
-        
+
     - name: Execute integration test
       run: |
         chmod u+x $SCRIPT_PATH
