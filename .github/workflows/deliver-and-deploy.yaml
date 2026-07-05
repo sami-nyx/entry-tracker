@@ -25,7 +25,7 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v2
 
     - name: Prepare for e2e test
-      run: docker compose up -d
+      run: docker compose up 
       env:
         DB_HOST: ${{ vars.DB_HOST }} 
         DB_USER: ${{ vars.DB_USER }}
