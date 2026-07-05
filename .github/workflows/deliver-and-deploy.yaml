@@ -15,6 +15,10 @@ jobs:
 
     steps:
 
+
+#==============================================================================================
+#                                         Configure aws 
+#==============================================================================================
     - name: Configure AWS Credentials via OIDC
       uses: aws-actions/configure-aws-credentials@v6
       with:
@@ -22,20 +26,27 @@ jobs:
         aws-region: ap-south-1 
         disable-retry: true 
 
-    - name: Checkout code
-      uses: actions/checkout@v6
 
+#==============================================================================================
+#                                         Login to ecr
+#==============================================================================================
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
+#==============================================================================================
+#                                         Ceckout code
+#==============================================================================================
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+
+#==============================================================================================
+#                                         E2e test
+#==============================================================================================
     - name: Prepare for e2e test
       run: |
         docker compose pull
-        # 3. Re-create and restart containers instantly with zero-build logic
-        echo "=========================================================="
-        printenv | grep DB
-        echo "=========================================================="
         docker compose up -d --no-build --remove-orphans
       env:
         DB_HOST: ${{ vars.DB_HOST }} 
@@ -53,43 +64,37 @@ jobs:
         docker compose logs db
         docker compose logs web
 
-    - name: Execute integration test
+    - name: Execute e2e test
       run: |
         chmod u+x $SCRIPT_PATH
         $SCRIPT_PATH
-        docker compose down
+        docker compose down >/dev/null
       env:
         SCRIPT_PATH: ./.github/scripts/test_entry_tracker.sh
-    # - name: Print next tag
-    #   run: echo "${{ steps.resolve-tag.outputs.NEXT_TAG }}"
+    
 
-    # - name: Build, tag, and push image to Amazon ECR
-    #   working-directory: ./entryTracker
-    #   env:
-    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-    #     ECR_REPOSITORY: entry-tracker
-    #   run: |
-    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-    # - name: Run script on instance
-    #   run: |
-    #     echo "Sending deployment script to tagged EC2 instances"
+#==============================================================================================
+#                                         Deploy to ec2
+#==============================================================================================
+    - name: Run script on instance
+      run: |
+        echo "Sending deployment script to tagged EC2 instances"
         
-    #     COMMAND_ID=$(aws ssm send-command \
-    #       --document-name "AWS-RunShellScript" \
-    #       --comment "Deploying entry-tracker:${{ github.sha }}" \
-    #       --targets '[
-    #         {"Key": "tag:Environment", "Values": ["staging"]},
-    #         {"Key": "tag:Project", "Values": ["entry-tracker"]}
-    #       ]' \
-    #       --parameters 'commands=[
-    #         "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\""
-    #         "printenv | grep 'DB_' > /home/ec2-user/env_vars.txt"
-    #       ]' \
-    #       --query "Command.CommandId" \
-    #       --output text)
+        COMMAND_ID=$(aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --comment "Deploying entry-tracker:${{ github.sha }}" \
+          --targets '[
+            {"Key": "tag:Environment", "Values": ["staging"]},
+            {"Key": "tag:Project", "Values": ["entry-tracker"]}
+          ]' \
+          --parameters 'commands=[
+            "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\""
+            "printenv | grep 'DB_' > /home/ec2-user/env_vars.txt"
+          ]' \
+          --query "Command.CommandId" \
+          --output text)
           
-    #     echo "Command sent successfully. Command ID: $COMMAND_ID"
+        echo "Command sent successfully. Command ID: $COMMAND_ID"
 
 
 
