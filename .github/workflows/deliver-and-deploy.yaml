@@ -28,6 +28,9 @@ jobs:
       run: |
         docker compose pull
         # 3. Re-create and restart containers instantly with zero-build logic
+        echo "=========================================================="
+        printenv
+        echo "=========================================================="
         docker compose up -d --no-build --remove-orphans
       env:
         DB_HOST: ${{ vars.DB_HOST }} 
