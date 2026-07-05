@@ -23,7 +23,6 @@ services:
       - "5000:5000"
     networks:
       - front_net
-      - back_net
     depends_on:
       db:
         condition: service_healthy  # Wait until the healthcheck passes, not just until the container starts
@@ -42,7 +41,7 @@ services:
     volumes:
       - db-data:/var/lib/mysql
     networks:
-      - back_net
+      - front_net
     # HEALTHCHECK: Ensures MySQL is fully ready to accept connections before web starts
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
@@ -52,17 +51,7 @@ services:
 
 networks:
   front_net:
-    ipam:
-      driver: default
-      config:
-        # Forces Docker to use a small, isolated 10.x block that won't conflict with host 172.x routes
-        - subnet: 10.10.1.0/24
-  back_net:
-    ipam:
-      driver: default
-      config:
-        # Forces Docker to use a small, isolated 10.x block that won't conflict with host 172.x routes
-        - subnet: 10.10.2.0/24
+    
 
 volumes:
   db-data:
