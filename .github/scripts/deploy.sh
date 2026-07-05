@@ -23,7 +23,7 @@ EOF
 echo "DB_PASSWORD=$(echo "$SECRETS_JSON" | jq -r '.DB_PASSWORD')" >> .env
 echo "DB_ROOT_PASSWORD=$(echo "$SECRETS_JSON" | jq -r '.DB_ROOT_PASSWORD')" >> .env
 
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "${ECR_REGISTRY}"
+aws ecr get-login-password --region ap_south-1 | docker login --username AWS --password-stdin "${ECR_REGISTRY}"
 # 4. Deploy
 docker compose pull
 docker compose up -d --no-build --remove-orphans
