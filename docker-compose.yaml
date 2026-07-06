@@ -53,12 +53,13 @@ services:
 networks:
   front_net:
     driver: bridge
-  back_net:
-    driver: bridge
     ipam:
-      driver: default
       config:
-        - subnet: 10.99.1.0/24
+        - subnet: 172.20.10.0/24
+  back_net:
+    ipam:
+      config:
+        - subnet: 172.20.10.0/24
 
 volumes:
   db-data:
