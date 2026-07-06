@@ -52,14 +52,6 @@ services:
 
 networks:
   frontend_net:
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.221.0/24
   backend_net:
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.222.0/24
 volumes:
   db-data:
