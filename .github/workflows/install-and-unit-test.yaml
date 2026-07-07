@@ -33,7 +33,7 @@ jobs:
 #==============================================================================================
     - name: Install dependencies
       run: |
-        echo "installing dependencies:"
+        echo "installing dependencies..." >> report.txt
         
         python -m pip install --upgrade pip
         pip install -r requirements.txt
@@ -51,7 +51,7 @@ jobs:
 #==============================================================================================
     - name: Run App and Test with Curl
       run: |
-        echo "running the app in the background..." >> reoprt.txt
+        echo "running the app in the background..." >> report.txt
         python app.py &
         
 
@@ -60,10 +60,10 @@ jobs:
 #==============================================================================================
     - name: Unit test
       run: |
-        echo "running unit test..." >> reoprt.txt
+        echo "running unit test..." >> report.txt
         sleep 3
         RESULT=$(curl -f http://127.0.0.1:5000/)
-        echo "result: $RESULT" >> reoprt.txt
+        echo "result: $RESULT" >> report.txt
         
     - name: Upload artifact
       run: cat report.txt
