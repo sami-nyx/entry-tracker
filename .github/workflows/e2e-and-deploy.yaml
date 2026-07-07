@@ -7,7 +7,7 @@ on:
       DB_ROOT_PASSWORD:
         required: true
 jobs:
-  deliver:
+  e2e-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       id-token: write 
@@ -22,7 +22,7 @@ jobs:
     - name: Configure AWS Credentials via OIDC
       uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b #v6.2.0
       with:
-        role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT }}:role/github-actions-ecr-push-role
+        role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT }}:role/gh-actions-e2e-and-deploy-role
         aws-region: ${{ vars.AWS_REGION }} 
         disable-retry: true 
 
