@@ -7,9 +7,9 @@ jobs:
   # install-and-unit-test:
   #   uses: ./.github/workflows/install-and-unit-test.yaml
   
-  package-integrations-deliver:
+  package-integrate-deliver:
     # needs: ["build-and-test"]
-    uses: ./.github/workflows/package-integration-and-deliver.yaml
+    uses: ./.github/workflows/package-integrate-deliver.yaml
     secrets:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
