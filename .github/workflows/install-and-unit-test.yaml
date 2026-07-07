@@ -25,7 +25,7 @@ jobs:
 
     - name: Initiate report artifact
       run: |
-        ARTIFACT_PATH ="report.txt"
+        ARTIFACT_PATH="report.txt"
         cat << EOF > $ARTIFACT_PATH
         ============================================================
         [$(date)]install and unit test started
