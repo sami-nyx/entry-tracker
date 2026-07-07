@@ -7,14 +7,14 @@ jobs:
   # install-and-unit-test:
   #   uses: ./.github/workflows/install-and-unit-test.yaml
   
-  package-integrations-and-deliver:
+  package-integrations-deliver:
     # needs: ["build-and-test"]
     uses: ./.github/workflows/package-integration-and-deliver.yaml
     secrets:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
     permissions:
-      id-token: write   # <-- Grant AWS OIDC write permissions here
+      id-token: write 
       contents: write
   # e2e-and-deploy:
   #   permissions:
