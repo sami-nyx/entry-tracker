@@ -136,6 +136,8 @@ jobs:
 
 #==============================================================================================
 #                  Wait for ssm (on ec2 instance) agent to consume script
+#Reuired aws permissions:
+# ssm:list-commands
 #==============================================================================================
     - name: wait for script to be executed
       run: |
@@ -154,10 +156,11 @@ jobs:
 
 #==============================================================================================
 #                              Fetch a single target ec2 instance IP
-#==============================================================================================
 #Reuired aws permissions:
-#ssm:list-command-invocations
-#ec2:
+# ssm:list-command-invocations
+# ec2:describe-instances
+#==============================================================================================
+
 
     - name: Get Target EC2 Public IP
       id: fetch-instance-id
@@ -188,7 +191,7 @@ jobs:
         fi
         echo "Target EC2 Public IP: $EC2_PUBLIC_IP"
         
-        echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_ENV
+        echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_OUTPUT
 
         # # 3. Test the deployment using curl
         # echo "Testing connection to http://$EC2_PUBLIC_IP ..."
