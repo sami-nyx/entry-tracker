@@ -60,7 +60,7 @@ jobs:
         sleep 3
         RESPONSE=$(curl -f http://127.0.0.1:5000/)
         if echo "$RESPONSE" | grep -q "current_entry"; then
-          echo "::notice::uinit test success" >> $ARTIFACT_PATH
+          echo "::notice::uinit test success"
         else
           echo "::error::unit test fail"
           echo "Raw Response: $RESPONSE"
