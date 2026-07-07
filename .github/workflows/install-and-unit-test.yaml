@@ -27,12 +27,14 @@ jobs:
 
     - name: Create report artifact
       run: |
+
+        echo "$ARTIFACT_PATH"
+        echo $(pwd)
         cat << EOF > $ARTIFACT_PATH
         ============================================================
         [$(date)]install and unit test started
         ============================================================
         EOF
-        echo "$ARTIFACT_PATH"
         
 #==============================================================================================
 #                                             install
