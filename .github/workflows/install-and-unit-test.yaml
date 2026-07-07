@@ -1,0 +1,69 @@
+name: Reusable build and unit test workflow
+
+on:
+  workflow_call:
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./entryTracker
+    steps:
+
+    # 1. Check out the repository code
+    - name: Checkout code
+      uses: actions/checkout@v6
+    
+    # 2. Set up Python 3.10
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+   
+    - name: Initiate report artifact
+      run: |
+        cat << EOF > report.txt
+        =================================
+        install and unit test started
+        =================================
+        
+#==============================================================================================
+#                                             install
+#==============================================================================================
+    - name: Install dependencies
+      run: |
+        echo "installing dependencies:"
+        
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+        if [ $? -eq 0 ]; then
+          echo "Result: SUCCESS" >> report.txt
+        else
+          echo Result: FAILED >> reoprt.txt
+        
+          exit 1 # Ensures the CI step actually fails if the install failed
+        fi
+        
+#==============================================================================================
+#                                             run
+#==============================================================================================
+    - name: Run App and Test with Curl
+      run: |
+        echo "running the app in the background..." >> reoprt.txt
+        python app.py &
+        
+
+#==============================================================================================
+#                                             unit test
+#==============================================================================================
+    - name: Unit test
+      run: |
+        echo "running unit test..." >> reoprt.txt
+        sleep 3
+        RESULT=$(curl -f http://127.0.0.1:5000/)
+        echo "result: $RESULT" >> reoprt.txt
+        
+    - name: Upload artifact
+      run: cat report.txt

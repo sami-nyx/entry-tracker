@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
     
 jobs:
-  # build-and-test:
-  #   uses: ./.github/workflows/build-and-unit-test.yaml
+  install-and-test:
+    uses: ./.github/workflows/install-and-unit-test.yaml
   # package-and-e2e:
   #   # needs: ["build-and-test"]
   #   secrets:
@@ -15,12 +15,12 @@ jobs:
   #   permissions:
   #     id-token: write   # <-- Grant AWS OIDC write permissions here
   #     contents: write
-  deliver:
-    permissions:
-      id-token: write 
-      contents: read
-    secrets:
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+  # deliver:
+  #   permissions:
+  #     id-token: write 
+  #     contents: read
+  #   secrets:
+  #       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  #       DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
     # needs: ["package-and-e2e"]
-    uses: ./.github/workflows/deliver-and-deploy.yaml
+    # uses: ./.github/workflows/deliver-and-deploy.yaml
