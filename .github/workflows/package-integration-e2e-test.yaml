@@ -13,6 +13,7 @@ jobs:
     permissions:
       id-token: write
       contents: write 
+
     steps:
     # 1. Check out the repository code
     - name: Checkout code
@@ -63,7 +64,7 @@ jobs:
 #                                         configure AWS 
 #==============================================================================================
     - name: Configure AWS Credentials via OIDC for ECR image push
-      uses: aws-actions/configure-aws-credentials@v6
+      uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b #v6.2.0
       with:
         role-to-assume: arn:aws:iam::889867978066:role/github-actions-ecr-push-role
         aws-region: ap-south-1 
@@ -106,9 +107,3 @@ jobs:
         ECR_REPOSITORY: entry-tracker
         IMAGE_TAG: ${{ steps.resolve-tag.outputs.NEXT_TAG }}
 
-
-    - name: List images
-      run: docker images
-
-
-        # local/entry-tracker  

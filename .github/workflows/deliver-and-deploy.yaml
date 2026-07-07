@@ -194,4 +194,4 @@ jobs:
 #                               verefy server up and running
 #==============================================================================================
     - name: Verify server up adn running
-      run: echo ${{ steps.fetch-instance-id.outputs.EC2_PUBLIC_IP }}
+      run: curl -f ${{ steps.fetch-instance-id.outputs.EC2_PUBLIC_IP }}
