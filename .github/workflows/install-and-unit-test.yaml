@@ -39,11 +39,10 @@ jobs:
 #                                             install
 #==============================================================================================
     - name: Install dependencies
-      working-directory: ./entryTracker
       run: |
 
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r ./entryTracker/requirements.txt
         
         if [ $? -eq 0 ]; then
           echo "[$(date)]dependencies installed sccessfully" >> $ARTIFACT_PATH
@@ -56,9 +55,8 @@ jobs:
 #                                             run
 #==============================================================================================
     - name: Run App and Test with Curl
-      working-directory: ./entryTracker
       run: |
-        python app.py &
+        python entryTracker/app.py &
         if [ $? -eq 0 ]; then
           echo "[$(date)]app started in background" >> $ARTIFACT_PATH
         else
