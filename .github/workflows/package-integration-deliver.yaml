@@ -8,7 +8,7 @@ on:
         required: true
 
 jobs:
-  package-e2e:
+  package-integration-and-deliver:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
