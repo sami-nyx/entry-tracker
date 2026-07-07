@@ -52,8 +52,13 @@ jobs:
 #==============================================================================================
     - name: Run App and Test with Curl
       run: |
-        echo "[$(date)]running the app in the background" >> report.txt
         python app.py &
+        if [ $? -eq 0 ]; then
+          echo "[$(date)]app started in background" >> report.txt
+        else
+          echo "[$(date)]app failed to start" >> report.txt
+          exit 1 
+        fi
         
 
 #==============================================================================================
@@ -74,4 +79,7 @@ jobs:
         echo "result: $RESULT" >> report.txt
         
     - name: Upload artifact
-      run: cat report.txt
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: report-artifact
+        path: report.txt
