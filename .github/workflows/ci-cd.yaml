@@ -16,7 +16,7 @@ jobs:
   #   permissions:
   #     id-token: write   # <-- Grant AWS OIDC write permissions here
   #     contents: write
-  deliver:
+  deploy:
     permissions:
       id-token: write 
       contents: read
