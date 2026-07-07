@@ -7,9 +7,6 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
     
-    env:
-      ARTIFACT_PATH: ${{ vars.REPORT_ARTIFACT_PATH }}  
-    
     steps:
 
     #Check out the repository code
@@ -24,16 +21,6 @@ jobs:
         cache: 'pip' 
         cache-dependency-path: 'entryTracker/requirements.txt'
 
-    - name: Create report artifact
-      run: |
-
-        echo "$ARTIFACT_PATH"
-        echo $(pwd)
-        cat << EOF > $ARTIFACT_PATH
-        ============================================================
-        [$(date)]install and unit test started
-        ============================================================
-        EOF
         
 #==============================================================================================
 #                                             install
@@ -45,9 +32,9 @@ jobs:
         pip install -r entryTracker/requirements.txt
         
         if [ $? -eq 0 ]; then
-          echo "[$(date)]dependencies installed sccessfully" >> $ARTIFACT_PATH
+          echo "::notice::Dependencies installed successfully"
         else
-          echo "[$(date)]failed installing dependencies " >> $ARTIFACT_PATH
+          echo "::error::Failed installing dependencies"
           exit 1 
         fi
         
@@ -58,9 +45,9 @@ jobs:
       run: |
         python entryTracker/app.py &
         if [ $? -eq 0 ]; then
-          echo "[$(date)]app started in background" >> $ARTIFACT_PATH
+          echo "::notice::App started in background"
         else
-          echo "[$(date)]app failed to start" >> $ARTIFACT_PATH
+          echo "[::error::app failed to start"
           exit 1 
         fi
         
@@ -71,22 +58,13 @@ jobs:
     - name: Unit test
       run: |
         sleep 3
-        RESULT=$(curl -f http://127.0.0.1:5000/)
-        if echo "$RESULT" | grep -q "current_entry"; then
-          echo "[$(date)]uinit test success" >> $ARTIFACT_PATH
+        RESPONSE=$(curl -f http://127.0.0.1:5000/)
+        if echo "$RESPONSE" | grep -q "current_entry"; then
+          echo "::notice::uinit test success" >> $ARTIFACT_PATH
         else
-          echo "[$(date)]unit test fail" >> $ARTIFACT_PATH
-          echo "$RESULT" >> $ARTIFACT_PATH
+          echo "::error::unit test fail"
+          echo "Raw Response: $RESPONSE"
           exit 1
         fi
 
-        echo "result: $RESULT" >> $ARTIFACT_PATH
-        echo "$ARTIFACT_PATH"
-      
-    - name: Upload artifact
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-      
-      with:
-        name: ${{ vars.REPORT_ARTIFACT_NAME }}  
-        path: ${{ vars.REPORT_ARTIFACT_PATH }}  
       
