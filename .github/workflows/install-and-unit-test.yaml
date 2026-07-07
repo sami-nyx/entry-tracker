@@ -9,13 +9,15 @@ jobs:
     defaults:
       run:
         working-directory: ./entryTracker
+    env:
+      ARTIFACT_PATH: ${{ vars.REPORT_ARTIFACT_NAME }}  
     steps:
 
-    # 1. Check out the repository code
+    #Check out the repository code
     - name: Checkout code
       uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 #v7
     
-    # 2. Set up Python 3.10
+    #Set up Python 3.10
     - name: Set up Python 3.10
       uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 #v6.3.0
       with:
@@ -23,10 +25,9 @@ jobs:
         cache: 'pip' 
         cache-dependency-path: 'entryTracker/requirements.txt'
 
-    - name: Initiate report artifact
+    - name: Create report artifact
       run: |
-        ARTIFACT_PATH="report.txt"
-        cat << EOF > report.txt
+        cat << EOF > $ARTIFACT_PATH
         ============================================================
         [$(date)]install and unit test started
         ============================================================
@@ -42,9 +43,9 @@ jobs:
         pip install -r requirements.txt
         
         if [ $? -eq 0 ]; then
-          echo "[$(date)]dependencies installed sccessfully" >> report.txt
+          echo "[$(date)]dependencies installed sccessfully" >> $ARTIFACT_PATH
         else
-          echo "[$(date)]failed installing dependencies " >> report.txt
+          echo "[$(date)]failed installing dependencies " >> $ARTIFACT_PATH
           exit 1 
         fi
         
@@ -55,9 +56,9 @@ jobs:
       run: |
         python app.py &
         if [ $? -eq 0 ]; then
-          echo "[$(date)]app started in background" >> report.txt
+          echo "[$(date)]app started in background" >> $ARTIFACT_PATH
         else
-          echo "[$(date)]app failed to start" >> report.txt
+          echo "[$(date)]app failed to start" >> $ARTIFACT_PATH
           exit 1 
         fi
         
@@ -70,18 +71,18 @@ jobs:
         sleep 3
         RESULT=$(curl -f http://127.0.0.1:5000/)
         if echo "$RESULT" | grep -q "current_entry"; then
-          echo "[$(date)]uinit test success" >> report.txt
+          echo "[$(date)]uinit test success" >> $ARTIFACT_PATH
         else
-          echo "[$(date)]unit test fail" >> report.txt
-          echo "$RESULT" >> report.txt
+          echo "[$(date)]unit test fail" >> $ARTIFACT_PATH
+          echo "$RESULT" >> $ARTIFACT_PATH
           exit 1
         fi
 
-        echo "result: $RESULT" >> report.txt
-        echo pwd
-
+        echo "result: $RESULT" >> $ARTIFACT_PATH
+        cat "$ARTIFACT_PATH"
+      
     - name: Upload artifact
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: report-artifact
-        path: report.txt
+        path: $ARTIFACT_PATH
