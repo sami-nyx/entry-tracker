@@ -8,7 +8,7 @@ on:
         required: true
 
 jobs:
-  package-integrate-deliver:
+  integration-and-delivery:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -23,8 +23,6 @@ jobs:
         fetch-depth:
           0
 
-    # - name: List images
-    #   run: docker images  
 
 #==============================================================================================
 #                                             Package

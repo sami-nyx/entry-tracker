@@ -4,24 +4,24 @@ on:
   workflow_dispatch:
     
 jobs:
-  # install-and-unit-test:
-  #   uses: ./.github/workflows/install-and-unit-test.yaml
+  install-and-unit-test:
+    uses: ./.github/workflows/install-and-unit-test.yaml
   
-  package-integrate-deliver:
-    # needs: ["build-and-test"]
-    uses: ./.github/workflows/package-integrate-deliver.yaml
+  integration-and-delivery:
+    needs: ["install-and-unit-test"]
+    uses: ./.github/workflows/integration-and-delivery.yaml
     secrets:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
     permissions:
       id-token: write 
       contents: write
-  # e2e-and-deploy:
-  #   permissions:
-  #     id-token: write 
-  #     contents: read
-  #   secrets:
-  #       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-  #       DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
-  #   # needs: ["package-and-e2e"]
-  #   uses: ./.github/workflows/e2e-and-deploy.yaml
+  e2e-and-deploy:
+    permissions:
+      id-token: write 
+      contents: read
+    secrets:
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+    needs: ["integration-and-delivery"]
+    uses: ./.github/workflows/e2e-and-deploy.yaml
