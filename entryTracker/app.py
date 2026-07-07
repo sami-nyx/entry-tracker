@@ -77,7 +77,7 @@ def home():
 
         return jsonify({
             "message": "Data fetched successfully from the database.",
-            "current_entry": current_entry,
+            "cdurrent_entry": current_entry,
             "previous_entries": previous_entries
         })
     
