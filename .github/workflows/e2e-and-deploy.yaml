@@ -1,4 +1,4 @@
-name: deliver-and-deploy
+name: E2E And Deploy
 on:
   workflow_call:
     secrets:
@@ -156,9 +156,6 @@ jobs:
 
 #==============================================================================================
 #                              Fetch a single target ec2 instance IP
-#Reuired aws permissions:
-# ssm:list-command-invocations
-# ec2:describe-instances
 #==============================================================================================
 
 
