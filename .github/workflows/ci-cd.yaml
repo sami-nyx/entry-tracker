@@ -7,21 +7,21 @@ jobs:
   # install-and-unit-test:
   #   uses: ./.github/workflows/install-and-unit-test.yaml
   
-  package-and-e2e:
-    # needs: ["build-and-test"]
-    uses: ./.github/workflows/package-integration-e2e-test.yaml
-    secrets:
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
-    permissions:
-      id-token: write   # <-- Grant AWS OIDC write permissions here
-      contents: write
-  # deliver:
-  #   permissions:
-  #     id-token: write 
-  #     contents: read
+  # package-and-e2e:
+  #   # needs: ["build-and-test"]
+  #   uses: ./.github/workflows/package-integration-e2e-test.yaml
   #   secrets:
   #       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   #       DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
-  #   # needs: ["package-and-e2e"]
-  #   uses: ./.github/workflows/deliver-and-deploy.yaml
+  #   permissions:
+  #     id-token: write   # <-- Grant AWS OIDC write permissions here
+  #     contents: write
+  deliver:
+    permissions:
+      id-token: write 
+      contents: read
+    secrets:
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+    # needs: ["package-and-e2e"]
+    uses: ./.github/workflows/deliver-and-deploy.yaml
