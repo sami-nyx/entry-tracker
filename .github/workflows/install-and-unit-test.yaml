@@ -10,7 +10,7 @@ jobs:
       run:
         working-directory: ./entryTracker
     env:
-      ARTIFACT_PATH: ${{ vars.REPORT_ARTIFACT_NAME }}  
+      ARTIFACT_PATH: ${{ vars.REPORT_ARTIFACT_PATH }}  
     steps:
 
     #Check out the repository code
