@@ -61,10 +61,13 @@ jobs:
         RESPONSE=$(curl -f http://127.0.0.1:5000/)
         if echo "$RESPONSE" | grep -q "current_entry"; then
           echo "::notice::uinit test success"
+          echo 
         else
           echo "::error::unit test fail"
           echo "Raw Response: $RESPONSE"
           exit 1
         fi
+
+          echo "Raw Response: $RESPONSE"
 
       
