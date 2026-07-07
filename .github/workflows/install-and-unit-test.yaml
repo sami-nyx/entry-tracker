@@ -26,7 +26,7 @@ jobs:
     - name: Initiate report artifact
       run: |
         ARTIFACT_PATH="report.txt"
-        cat << EOF > $ARTIFACT_PATH
+        cat << EOF > report.txt
         ============================================================
         [$(date)]install and unit test started
         ============================================================
@@ -42,9 +42,9 @@ jobs:
         pip install -r requirements.txt
         
         if [ $? -eq 0 ]; then
-          echo "[$(date)]dependencies installed sccessfully" >> $ARTIFACT_PATH
+          echo "[$(date)]dependencies installed sccessfully" >> report.txt
         else
-          echo "[$(date)]failed installing dependencies " >> $ARTIFACT_PATH
+          echo "[$(date)]failed installing dependencies " >> report.txt
           exit 1 
         fi
         
@@ -55,9 +55,9 @@ jobs:
       run: |
         python app.py &
         if [ $? -eq 0 ]; then
-          echo "[$(date)]app started in background" >> $ARTIFACT_PATH
+          echo "[$(date)]app started in background" >> report.txt
         else
-          echo "[$(date)]app failed to start" >> $ARTIFACT_PATH
+          echo "[$(date)]app failed to start" >> report.txt
           exit 1 
         fi
         
@@ -70,18 +70,18 @@ jobs:
         sleep 3
         RESULT=$(curl -f http://127.0.0.1:5000/)
         if echo "$RESULT" | grep -q "current_entry"; then
-          echo "[$(date)]uinit test success" >> $ARTIFACT_PATH
+          echo "[$(date)]uinit test success" >> report.txt
         else
-          echo "[$(date)]unit test fail" >> $ARTIFACT_PATH
-          echo "$RESULT" >> $ARTIFACT_PATH
+          echo "[$(date)]unit test fail" >> report.txt
+          echo "$RESULT" >> report.txt
           exit 1
         fi
 
-        echo "result: $RESULT" >> $ARTIFACT_PATH
+        echo "result: $RESULT" >> report.txt
         echo pwd
 
     - name: Upload artifact
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: report-artifact
-        path: $ARTIFACT_PATH
+        path: report.txt
