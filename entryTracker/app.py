@@ -77,14 +77,14 @@ def home():
 
         return jsonify({
             "message": "Data fetched successfully from the database.",
-            "cdurrent_entry": current_entry,
+            "current_entry": current_entry,
             "previous_entries": previous_entries
         })
     
     except Exception as e:
         return jsonify({
             "message": f"No connection to the database. Showing current entry only. Error: {str(e)}",
-            "current_entry": current_entry
+            "currrent_entry": current_entry
         })
 
 if __name__ == '__main__':
