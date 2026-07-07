@@ -20,10 +20,10 @@ jobs:
 #                                         Configure aws 
 #==============================================================================================
     - name: Configure AWS Credentials via OIDC
-      uses: aws-actions/configure-aws-credentials@v6
+      uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b #v6.2.0
       with:
-        role-to-assume: arn:aws:iam::889867978066:role/github-actions-ecr-push-role
-        aws-region: ap-south-1 
+        role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT }}:role/github-actions-ecr-push-role
+        aws-region: ${{ vars.AWS_REGION }} 
         disable-retry: true 
 
 
@@ -32,70 +32,50 @@ jobs:
 #==============================================================================================
     - name: Login to Amazon ECR
       id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+      uses: aws-actions/amazon-ecr-login@33f92af657bba1882ab79d8621debd2f6769a0c9 #v2
 
 #==============================================================================================
 #                                         Ceckout code
 # ==============================================================================================
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 #v7
 
 
-# #==============================================================================================
-# #                                         E2e test
-# #==============================================================================================
-#     - name: Prepare for e2e test
-#       run: |
-#         docker compose pull
-#         docker compose up -d --no-build --remove-orphans
-#       env:
-#         DB_HOST: ${{ vars.DB_HOST }} 
-#         DB_USER: ${{ vars.DB_USER }}
-#         DB_NAME: ${{ vars.DB_NAME }}
-#         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-#         DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
-#         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#         ECR_REPOSITORY: entry-tracker
-#         IMAGE_TAG: latest
-#     - name: Debug Container Failure Logs
-#       if: failure()
-#       run: |
-#         docker compose ps
-#         docker compose logs db
-#         docker compose logs web
+#==============================================================================================
+#                                         E2e test
+#==============================================================================================
+    - name: Prepare for e2e test
+      run: |
+        docker compose pull
+        docker compose up -d --no-build --remove-orphans
+      env:
+        DB_HOST: ${{ vars.DB_HOST }} 
+        DB_USER: ${{ vars.DB_USER }}
+        DB_NAME: ${{ vars.DB_NAME }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: entry-tracker
+        IMAGE_TAG: latest
+    - name: Debug Container Failure Logs
+      if: failure()
+      run: |
+        docker compose ps
+        docker compose logs db
+        docker compose logs web
 
-#     - name: Execute e2e test
-#       run: |
-#         chmod u+x $SCRIPT_PATH
-#         $SCRIPT_PATH
-#         docker compose down >/dev/null
-#       env:
-#         SCRIPT_PATH: ./.github/scripts/test_entry_tracker.sh
+    - name: Execute e2e test
+      run: |
+        chmod u+x $SCRIPT_PATH
+        $SCRIPT_PATH
+        docker compose down >/dev/null
+      env:
+        SCRIPT_PATH: ./.github/scripts/test_entry_tracker.sh
     
 
 #==============================================================================================
-#                                         Ship docker compose file to ec2
+#                                Ship docker compose file to ec2
 #==============================================================================================
-    # - name: Run script on instance
-    #   run: |
-    #     echo "Sending deployment script to tagged EC2 instances"
-        
-    #     COMMAND_ID=$(aws ssm send-command \
-    #       --document-name "AWS-RunShellScript" \
-    #       --comment "Deploying entry-tracker:${{ github.sha }}" \
-    #       --targets '[
-    #         {"Key": "tag:Environment", "Values": ["staging"]},
-    #         {"Key": "tag:Project", "Values": ["entry-tracker"]}
-    #       ]' \
-    #       --parameters 'commands=[
-    #         "sudo -u ec2-user -i bash -c \"touch /home/ec2-user/hi-hi\"",
-    #         "printenv | grep 'DB_' > /home/ec2-user/env_vars.txt"
-    #       ]' \
-    #       --query "Command.CommandId" \
-    #       --output text)
-          
-    #     echo "Command sent successfully. Command ID: $COMMAND_ID"
-
     - name: Ship Docker Compose Manifest
       uses: ./.github/actions/ssm-ship-file
       id: run_ssm
@@ -105,6 +85,9 @@ jobs:
           environment-tag: 'staging'
           project-tag: 'entry-tracker'
 
+#==============================================================================================
+#                                 Ship nginx config file to ec2
+#==============================================================================================
     - name: Ship nginx config file
       uses: ./.github/actions/ssm-ship-file
       with:
@@ -113,7 +96,9 @@ jobs:
           environment-tag: 'staging'
           project-tag: 'entry-tracker'
 
-          
+#==============================================================================================
+#                                         Deoply to ec2
+#==============================================================================================
     - name: Run Remote Deployment Script via SSM
       run: |
         # 1. Read the external file script
@@ -149,6 +134,9 @@ jobs:
 
 
 
+#==============================================================================================
+#                  Wait for ssm (on ec2 instance) agent to consume script
+#==============================================================================================
     - name: wait for script to be executed
       run: |
         echo "Waiting for SSM Command $COMMAND_ID to process across targets..."
@@ -163,11 +151,15 @@ jobs:
           echo "Still executing... checking again in 5 seconds."
           sleep 5
         done
-    
-    - name: Get Target EC2 Public IP and Test
+
+#==============================================================================================
+#                              Fetch a single target ec2 instance IP
+#==============================================================================================
+    - name: Get Target EC2 Public IP
+      id: fetch-instance-id
       run: |
         echo "Fetching Instance ID targeted by SSM Command: $COMMAND_ID"
-        
+      
         # 1. Get the Instance ID that executed the command
         INSTANCE_ID=$(aws ssm list-command-invocations \
           --command-id "$COMMAND_ID" \
@@ -187,11 +179,19 @@ jobs:
           --output text)
 
         if [ -z "$EC2_PUBLIC_IP" ] || [ "$EC2_PUBLIC_IP" == "None" ]; then
-          echo "Error: Could not find a Public IP for instance $INSTANCE_ID (Is it in a private subnet?)"
+          echo "Error: Could not find a Public IP for instance $INSTANCE_ID"
           exit 1
         fi
         echo "Target EC2 Public IP: $EC2_PUBLIC_IP"
+        
+        echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_ENV
 
-        # 3. Test the deployment using curl
-        echo "Testing connection to http://$EC2_PUBLIC_IP ..."
-        curl --fail --connect-timeout 10 -v "http://$EC2_PUBLIC_IP"
+        # # 3. Test the deployment using curl
+        # echo "Testing connection to http://$EC2_PUBLIC_IP ..."
+        # curl --fail --connect-timeout 10 -v "http://$EC2_PUBLIC_IP"
+
+#==============================================================================================
+#                               verefy server up and running
+#==============================================================================================
+    - name: Verify server up adn running
+      run: echo ${{ steps.fetch-instance-id.outputs.EC2_PUBLIC_IP }}

@@ -31,26 +31,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r entryTracker/requirements.txt
         
-        if [ $? -eq 0 ]; then
-          echo "::notice::Dependencies installed successfully"
-        else
-          echo "::error::Failed installing dependencies"
-          exit 1 
-        fi
-        
 #==============================================================================================
 #                                             run
 #==============================================================================================
     - name: Run App and Test with Curl
       run: |
         python entryTracker/app.py &
-        if [ $? -eq 0 ]; then
-          echo "::notice::App started in background"
-        else
-          echo "[::error::app failed to start"
-          exit 1 
-        fi
-        
 
 #==============================================================================================
 #                                             unit test
@@ -68,6 +54,5 @@ jobs:
           exit 1
         fi
 
-          echo "Raw Response: $RESPONSE"
 
       
