@@ -155,6 +155,10 @@ jobs:
 #==============================================================================================
 #                              Fetch a single target ec2 instance IP
 #==============================================================================================
+#Reuired aws permissions:
+#ssm:list-command-invocations
+#ec2:
+
     - name: Get Target EC2 Public IP
       id: fetch-instance-id
       run: |
